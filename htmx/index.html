@@ -5,21 +5,29 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>SysMon - System Monitoring</title>
-	<!-- <link href="css/style.css" rel="stylesheet"> -->
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://unpkg.com/htmx.org@2.0.1"
+		integrity="sha384-QWGpdj554B4ETpJJC9z+ZHJcA/i59TyjxEPXiiUgN2WmTyV5OEZWCD6gQhgkdpB/"
+		crossorigin="anonymous"></script>
+	<script src="https://unpkg.com/htmx-ext-ws@2.0.0/ws.js"></script>
 </head>
 
-<body>
-	<h1>SysMon</h1>
-	<div id="data-timestamp">Loading ...</div>
-	<div id="sys-monitor-data">
-		<div id="cpu-data">CPU Data here</div>
-		<div id="memory-data">Memory Data here</div>
-		<div id="disk-data">Disk Data here</div>
-	</div>
+<body class="bg-stone-900 text-stone-200">
+	<main>
+		<h1>SysMon</h1>
+		<div hx-ext="ws" ws-connect="ws://localhost:8000/ws">
+
+			<div id="data-timestamp">Loading ...</div>
+
+			<div id="sys-monitor-data">
+				<div id="cpu-data">CPU Data here</div>
+				<div id="memory-data">Memory Data here</div>
+				<div id="disk-data">Disk Data here</div>
+			</div>
+
+		</div>
+	</main>
 </body>
-<script src="https://unpkg.com/htmx.org@2.0.1"
-	integrity="sha384-QWGpdj554B4ETpJJC9z+ZHJcA/i59TyjxEPXiiUgN2WmTyV5OEZWCD6gQhgkdpB/"
-	crossorigin="anonymous"></script>
-<script src="https://unpkg.com/htmx-ext-ws@2.0.0/ws.js"></script>
+
 
 </html>
