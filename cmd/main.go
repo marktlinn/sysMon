@@ -3,11 +3,15 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
+	"os"
 	"time"
 
 	"github.com/marktlinn/sysMon/internal/system"
+	"github.com/marktlinn/sysMon/server"
 )
 
+// server := server.NewServer()
 func main() {
 	log.Println("Application starting...")
 
@@ -35,5 +39,11 @@ func main() {
 			time.Sleep(3 * time.Second)
 		}
 	}()
-	time.Sleep(5 * time.Minute)
+	s := server.NewServer()
+	err := http.ListenAndServe(":8000", &s.Mux)
+	if err != nil {
+		log.Println("failed to listen to server on port ':8000'")
+		os.Exit(1)
+	}
+
 }
