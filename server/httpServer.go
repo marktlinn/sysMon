@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -35,9 +36,10 @@ func NewServer() *Server {
 		cwd = "./"
 	}
 
-	htmxDir := fmt.Sprintf("%s/htmx", cwd)
+	htmxDir := filepath.Join(cwd, "htmx")
 
 	s.Mux.Handle("/", http.FileServer(http.Dir(htmxDir)))
+
 	s.Mux.HandleFunc("/ws", s.subscriberHandler)
 	return s
 }
@@ -47,6 +49,19 @@ func (s *Server) addSubscriber(subscriber *Subscriber) {
 	defer s.subscriberMutex.Unlock()
 	s.Subscribers[subscriber] = struct{}{}
 	log.Printf("subscriber %v added to Subscribers: %v", subscriber, s.Subscribers)
+}
+
+func (s *Server) removeSubscriber(subscriber *Subscriber) {
+	s.subscriberMutex.Lock()
+	defer s.subscriberMutex.Unlock()
+
+	_, ok := s.Subscribers[subscriber]
+	if ok {
+		delete(s.Subscribers, subscriber)
+		log.Printf("subscriber %v removed from Subscribers: %v", subscriber, s.Subscribers)
+	} else {
+		log.Printf("subscriber: %v, not found in Subscribers: %v\n", subscriber, s.Subscribers)
+	}
 }
 
 func (s *Server) subscribe(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
@@ -80,7 +95,8 @@ func (s *Server) subscribe(ctx context.Context, w http.ResponseWriter, r *http.R
 				return fmt.Errorf("failed to sent message through websocket: %w", err)
 			}
 		case <-ctx.Done():
-			return fmt.Errorf("context done error from websocket: %w", ctx.Err())
+			s.removeSubscriber(subscriber)
+			return fmt.Errorf("context done: %w", ctx.Err())
 		}
 	}
 }
@@ -91,4 +107,12 @@ func (s *Server) subscriberHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("failed to subscribe to server: %s\n", err)
 		return
 	}
+}
+
+func (s *Server) Broadcast(msg []byte) {
+	s.subscriberMutex.Lock()
+	for sub := range s.Subscribers {
+		sub.msgs <- msg
+	}
+	s.subscriberMutex.Unlock()
 }
