@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -15,7 +14,8 @@ import (
 func main() {
 	log.Println("Application starting...")
 
-	go func() {
+	s := server.NewServer()
+	go func(s *server.Server) {
 		for {
 			cpuInfo, err := system.GetCpuStats()
 			if err != nil {
@@ -32,14 +32,23 @@ func main() {
 				log.Println(err)
 			}
 
-			fmt.Println(cpuInfo)
-			fmt.Println(memInfo)
-			fmt.Println(diskInfo)
+			timeStamp := time.Now().Format("2006-01-02 15:04:05")
+
+			html := ` <td hx-swap-oob="innerHTML:#data-timestamp">` + timeStamp + `</td>
+			<td hx-swap-oob="innerHTML:#cpu-data">` + cpuInfo + `</td>
+			<td hx-swap-oob="innerHTML:#memory-data">` + memInfo + `</td>
+			<td hx-swap-oob="innerHTML:#disk-data">` + diskInfo + `</td>
+			
+			`
+
+			s.Broadcast([]byte(html))
+			s.Broadcast([]byte(cpuInfo))
+			s.Broadcast([]byte(memInfo))
+			s.Broadcast([]byte(diskInfo))
 
 			time.Sleep(3 * time.Second)
 		}
-	}()
-	s := server.NewServer()
+	}(s)
 	err := http.ListenAndServe(":8000", &s.Mux)
 	if err != nil {
 		log.Println("failed to listen to server on port ':8000'")

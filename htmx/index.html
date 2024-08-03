@@ -20,9 +20,39 @@
 			<div id="data-timestamp">Loading ...</div>
 
 			<div id="sys-monitor-data">
-				<div id="cpu-data">CPU Data here</div>
-				<div id="memory-data">Memory Data here</div>
-				<div id="disk-data">Disk Data here</div>
+				<table class="table-auto flex flex-col">
+					<thead class="self-start">
+						<tr>
+							<th>CPU Data</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr id="cpu-data" class="odd:bg-stone-800"></tr>
+					</tbody>
+				</table>
+
+				<table class="table-auto flex flex-col">
+					<thead class="self-start">
+						<tr>
+							<th>Memory Data</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr id="memory-data" class="odd:bg-stone-800"></tr>
+					</tbody>
+				</table>
+
+				<table class="table-auto flex flex-col">
+					<thead class="self-start">
+						<tr>
+							<th>Disk Data</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr id="disk-data" class="odd:bg-stone-800"></tr>
+					</tbody>
+				</table>
+
 			</div>
 
 		</div>
